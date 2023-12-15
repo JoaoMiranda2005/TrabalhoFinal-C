@@ -1,2 +1,1 @@
-# TrabalhoFinal-C
- Trabalho Final da Disciplina de Programação e Algoritmia na Linguagem C
+<h1 style="color:blue; text-align:center;">Sistema de Vendas e Faturação</h1>
