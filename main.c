@@ -30,6 +30,22 @@ typedef struct {
     float valor_produto;
 } Produto;
 
+void inicializarProximoIdVenda() {
+    FILE *arquivoProximoId = fopen("proximoIdVenda.txt", "r");
+    if (arquivoProximoId == NULL) {
+        // O arquivo não existe, então vamos criar um arquivo inicial
+        arquivoProximoId = fopen("proximoIdVenda.txt", "w");
+        if (arquivoProximoId != NULL) {
+            // Escrever um valor inicial no arquivo (por exemplo, 1)
+            fprintf(arquivoProximoId, "1");
+            fclose(arquivoProximoId);
+        } else {
+            printf("Erro ao criar o arquivo de próximo ID.\n");
+        }
+    } else {
+        fclose(arquivoProximoId);
+    }
+}
 void salvarProximoIdVenda(int proximoId) {
     FILE *arquivoProximoId = fopen("proximoIdVenda.txt", "w");
     if (arquivoProximoId == NULL) {
@@ -115,6 +131,8 @@ int verificarExistenciaProduto(int id_produto) {
 }
 
 void inserirVenda(Venda vendas[], int *totalVendas) {
+
+    
     int proximoId = lerProximoIdVenda();
     int ultimoId = 0;
 
@@ -505,7 +523,7 @@ void alterarVenda() {
 int main() {
     // Inicializar o arquivo de produtos se necessário
     inicializarProdutos();
-
+    inicializarProximoIdVenda();
     Venda vendas[MAX_VENDAS];
     int totalVendas = 0;
 
