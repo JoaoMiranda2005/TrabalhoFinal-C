@@ -20,7 +20,7 @@ typedef struct {
     int quantidade_produto;
     float valor_produto;
     float valor_final;
-    char data[MAX_STRING];
+    char data[11];
     bool pago;
 } Venda;
 
@@ -225,7 +225,7 @@ void consultarArtigosVendidos() {
     scanf("%s", dataConsulta);
 
     int dia, mes, ano;
-    // Extrair dia, mês e ano da data inserida pelo usuário
+    // Extrair dia, mês e ano da data inserida pelo utilizador
     if (sscanf(dataConsulta, "%d-%d-%d", &dia, &mes, &ano) != 3) {
         printf("Formato de data inválido. Use DD-MM-AAAA.\n");
         return;
@@ -239,7 +239,6 @@ void consultarArtigosVendidos() {
         return;
     }
 
-    // Agora você pode usar as variáveis dia, mes e ano conforme necessário
 
     FILE *arquivoVendas = fopen("vendas.txt", "r");
     if (arquivoVendas == NULL) {
@@ -420,7 +419,7 @@ void alterarVenda() {
                    &venda.valor_final,
                    venda.data,
                    &venda.pago) == 11) {
-        // Verifica se o ID da venda corresponde ao ID informado pelo usuário
+        // Verifica se o ID da venda corresponde ao ID informado pelo utilizador
         if (venda.id_venda == idVendaAltera) {
             encontrado = 1;
 
