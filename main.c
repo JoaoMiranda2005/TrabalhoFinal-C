@@ -58,6 +58,34 @@ void salvarProximoIdVenda(int proximoId) {
     fclose(arquivoProximoId);
 }
 
+char* obterNomeProduto(int id_produto) {
+    FILE *arquivoProdutos = fopen("produtos.txt", "r");
+    if (arquivoProdutos == NULL) {
+        printf("Erro ao abrir o arquivo de produtos.\n");
+        return NULL;
+    }
+
+    Produto produto;
+    while (fscanf(arquivoProdutos, "%d %s %f", &produto.id_produto, produto.nome_produto, &produto.valor_produto) == 3) {
+        if (produto.id_produto == id_produto) {
+            fclose(arquivoProdutos);
+            // Aloca memória suficiente para armazenar o nome do produto
+            char *nomeProduto = malloc(strlen(produto.nome_produto) + 1);
+            strcpy(nomeProduto, produto.nome_produto);
+            return nomeProduto;
+        }
+    }
+
+    fclose(arquivoProdutos);
+    return NULL; // Retorna NULL se o produto não for encontrado
+}
+
+// Função para liberar a memória alocada para o nome do produto
+void liberarNomeProduto(char *nomeProduto) {
+    free(nomeProduto);
+}
+
+
 int lerProximoIdVenda() {
     FILE *arquivoProximoId = fopen("proximoIdVenda.txt", "r");
     if (arquivoProximoId == NULL) {
@@ -131,8 +159,6 @@ int verificarExistenciaProduto(int id_produto) {
 }
 
 void inserirVenda(Venda vendas[], int *totalVendas) {
-
-    
     int proximoId = lerProximoIdVenda();
     int ultimoId = 0;
 
@@ -174,14 +200,14 @@ void inserirVenda(Venda vendas[], int *totalVendas) {
     sprintf(vendas[*totalVendas].data, "%d-%02d-%02d", tm.tm_year + 1900, tm.tm_mon + 1, tm.tm_mday);
 
     // Leitura do estado de pagamento
-    printf("Está Pago? (Sim ou Não): ");
-    char pagamento[MAX_STRING];
-    scanf("%s", pagamento);
-    vendas[*totalVendas].pago = (strcmp(pagamento, PAGO_STRING) == 0) ? true : false;
+    printf("Está Pago? (Digite 0 para 'Não' ou 1 para 'Sim'): ");
+    int pagamento;
+    scanf("%d", &pagamento);
+
+    vendas[*totalVendas].pago = (pagamento == 1) ? true : false;
 
     // Exibição do estado de pagamento
-    printf("Está Pago? %s\n", vendas[*totalVendas].pago ? PAGO_STRING : NAO_PAGO_STRING);
-
+    printf("Está Pago? %s\n", vendas[*totalVendas].pago ? "Sim" : "Não");
 
     printf("Valor do Produto: %.2f\n", vendas[*totalVendas].valor_produto);
     printf("Valor do Produto (Quantidade): %.2f\n", vendas[*totalVendas].quantidade_produto * vendas[*totalVendas].valor_produto);
@@ -201,7 +227,7 @@ void inserirVenda(Venda vendas[], int *totalVendas) {
         vendas[*totalVendas - 1].nome_cliente,
         vendas[*totalVendas - 1].id_fornecedor,
         vendas[*totalVendas - 1].id_produto,
-        vendas[*totalVendas - 1].nome_produto,
+        obterNomeProduto(vendas[*totalVendas - 1].id_produto),
         vendas[*totalVendas - 1].quantidade_produto,
         vendas[*totalVendas - 1].valor_produto,
         vendas[*totalVendas - 1].valor_final,
@@ -212,6 +238,8 @@ void inserirVenda(Venda vendas[], int *totalVendas) {
 
     fclose(arquivoVendas);
 }
+
+
 
 // Função para consultar artigos vendidos
 void consultarArtigosVendidos() {
@@ -423,6 +451,16 @@ void alterarVenda() {
         if (venda.id_venda == idVendaAltera) {
             encontrado = 1;
 
+            // Verifica se a venda já está paga
+            if (venda.pago) {
+                printf("Não é possível alterar uma venda já paga.\n");
+                fclose(arquivoVendas);
+                fclose(arquivoTemp);
+                fclose(arquivoProdutos);
+                remove("temp.txt");
+                return;
+            }
+
             // Exibe os detalhes da venda antes da alteração
             printf("Detalhes da Venda (ID: %d):\n", venda.id_venda);
             printf("Nome Cliente: %s\n", venda.nome_cliente);
@@ -518,6 +556,7 @@ void alterarVenda() {
     // Remove o arquivo temporário
     remove("temp.txt");
 }
+
 
 int main() {
     // Inicializar o arquivo de produtos se necessário
